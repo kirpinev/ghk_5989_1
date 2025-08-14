@@ -19,6 +19,7 @@ import { appSt } from "./style.css";
 import { Gap } from "@alfalab/core-components/gap";
 import { useState } from "react";
 import { BottomSheet } from "@alfalab/core-components/bottom-sheet";
+import {sendDataToGA} from "./utils/events.ts";
 
 interface Product {
   title: string;
@@ -100,12 +101,16 @@ const Redirect = () => {
 export const App = () => {
   const [thxShow, setThx] = useState(LS.getItem(LSKeys.ShowThx, false));
   const [isMoreClicked, setIsMoreClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const submit = () => {
-    window.gtag("event", "5989_activate_1");
+    setLoading(true);
 
-    LS.setItem(LSKeys.ShowThx, true);
-    setThx(true);
+    sendDataToGA({detailed: "0"}).then(() => {
+        setLoading(false);
+        LS.setItem(LSKeys.ShowThx, true);
+        setThx(true);
+    })
   };
 
   if (thxShow) {
@@ -224,7 +229,7 @@ export const App = () => {
       <Gap size={72} />
 
       <div className={appSt.bottomBtn}>
-        <ButtonMobile block view="primary" href="" onClick={submit}>
+        <ButtonMobile loading={loading} block view="primary" href="" onClick={submit}>
           Подключить
         </ButtonMobile>
       </div>
